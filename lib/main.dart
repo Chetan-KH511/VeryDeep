@@ -14,7 +14,9 @@ class DeepfakeDetectionApp extends StatelessWidget {
     return MaterialApp(
       title: 'Deepfake Detection',
       theme: ThemeData(
+        brightness: Brightness.dark,
         primarySwatch: Colors.blue,
+        fontFamily: 'Orbitron', // Use a sci-fi font like Orbitron
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(title: 'Deepfake Detection'),
@@ -39,14 +41,15 @@ class _MyHomePageState extends State<MyHomePage> {
   VideoPlayerController? _videoController;
 
   Future<void> _pickVideo() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(type: FileType.video);
+    FilePickerResult? result =
+        await FilePicker.platform.pickFiles(type: FileType.video);
 
     if (result != null) {
       setState(() {
         _selectedVideo = File(result.files.single.path!);
         _videoController = VideoPlayerController.file(_selectedVideo!)
           ..initialize().then((_) {
-            setState(() {});  // Update the UI to show the video player.
+            setState(() {}); // Update the UI to show the video player.
           });
       });
     }
@@ -82,20 +85,37 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Text(widget.title),
         centerTitle: true,
+        backgroundColor: Colors.black,
       ),
-      body: Padding(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.black, Colors.blueGrey[900]!],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
+            Center(
+              child: Image.network(
+                'https://media.giphy.com/media/26xBwdIuRJiAIqHwA/giphy.gif',
+                height: 100,
+              ),
+            ),
+            SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _pickVideo,
-              icon: Icon(Icons.video_library),
+              icon: Icon(Icons.videocam, color: Colors.cyanAccent),
               label: Text('Pick Video'),
               style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.cyanAccent[700],
                 padding: EdgeInsets.symmetric(vertical: 16),
-                textStyle: TextStyle(fontSize: 16),
+                textStyle: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
             SizedBox(height: 20),
@@ -114,7 +134,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         _videoController!,
                         allowScrubbing: true,
                         colors: VideoProgressColors(
-                          playedColor: Theme.of(context).primaryColor,
+                          playedColor: const Color.fromARGB(255, 0, 229, 255),
                         ),
                       ),
                       SizedBox(height: 10),
@@ -123,9 +143,11 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           IconButton(
                             icon: Icon(
-                              _videoController!.value.isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                              _videoController!.value.isPlaying
+                                  ? Icons.pause_circle_filled
+                                  : Icons.play_circle_fill,
                               size: 40,
-                              color: Theme.of(context).primaryColor,
+                              color: Colors.cyanAccent,
                             ),
                             onPressed: () {
                               setState(() {
@@ -153,11 +175,13 @@ class _MyHomePageState extends State<MyHomePage> {
             SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: _uploadVideo,
-              icon: Icon(Icons.cloud_upload),
+              icon: Icon(Icons.cloud_upload, color: Colors.cyanAccent),
               label: Text('Upload and Detect'),
               style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.deepPurpleAccent,
                 padding: EdgeInsets.symmetric(vertical: 16),
-                textStyle: TextStyle(fontSize: 16),
+                textStyle: TextStyle(fontSize: 18, color: Colors.white),
               ),
             ),
             SizedBox(height: 20),
@@ -168,21 +192,31 @@ class _MyHomePageState extends State<MyHomePage> {
                         children: [
                           Text(
                             'Output:',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.cyanAccent),
                           ),
                           SizedBox(height: 8),
                           Text(
                             _output,
-                            style: TextStyle(fontSize: 16, color: Colors.black87),
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                           SizedBox(height: 10),
                           Text(
                             'Confidence: ${_confidence.toStringAsFixed(2)}%',
-                            style: TextStyle(fontSize: 16, color: Colors.black87),
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                         ],
                       )
                     : Container(),
+            SizedBox(height: 20),
+            Center(
+              child: Image.network(
+                'https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif',
+                height: 100,
+              ),
+            ),
           ],
         ),
       ),
