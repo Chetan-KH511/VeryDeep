@@ -15,6 +15,7 @@ class DeepfakeDetectionApp extends StatelessWidget {
       title: 'Deepfake Detection',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(title: 'Deepfake Detection'),
     );
@@ -80,14 +81,22 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        centerTitle: true,
       ),
-      body: Center(
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: _pickVideo,
-              child: Text('Pick Video'),
+              icon: Icon(Icons.video_library),
+              label: Text('Pick Video'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                textStyle: TextStyle(fontSize: 16),
+              ),
             ),
             SizedBox(height: 20),
             _selectedVideo != null && _videoController!.value.isInitialized
@@ -95,15 +104,28 @@ class _MyHomePageState extends State<MyHomePage> {
                     children: [
                       AspectRatio(
                         aspectRatio: _videoController!.value.aspectRatio,
-                        child: VideoPlayer(_videoController!),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(12.0),
+                          child: VideoPlayer(_videoController!),
+                        ),
                       ),
-                      VideoProgressIndicator(_videoController!, allowScrubbing: true),
+                      SizedBox(height: 10),
+                      VideoProgressIndicator(
+                        _videoController!,
+                        allowScrubbing: true,
+                        colors: VideoProgressColors(
+                          playedColor: Theme.of(context).primaryColor,
+                        ),
+                      ),
+                      SizedBox(height: 10),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           IconButton(
                             icon: Icon(
-                              _videoController!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                              _videoController!.value.isPlaying ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                              size: 40,
+                              color: Theme.of(context).primaryColor,
                             ),
                             onPressed: () {
                               setState(() {
@@ -119,21 +141,48 @@ class _MyHomePageState extends State<MyHomePage> {
                       ),
                     ],
                   )
-                : Text('No video selected'),
+                : Center(
+                    child: Text(
+                      'No video selected',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
             SizedBox(height: 20),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: _uploadVideo,
-              child: Text('Upload and Detect'),
+              icon: Icon(Icons.cloud_upload),
+              label: Text('Upload and Detect'),
+              style: ElevatedButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                textStyle: TextStyle(fontSize: 16),
+              ),
             ),
             SizedBox(height: 20),
             _isLoading
-                ? CircularProgressIndicator()
-                : Column(
-                    children: [
-                      Text('Output: $_output'),
-                      Text('Confidence: ${_confidence.toStringAsFixed(2)}%'),
-                    ],
-                  ),
+                ? Center(child: CircularProgressIndicator())
+                : _output.isNotEmpty
+                    ? Column(
+                        children: [
+                          Text(
+                            'Output:',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            _output,
+                            style: TextStyle(fontSize: 16, color: Colors.black87),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Confidence: ${_confidence.toStringAsFixed(2)}%',
+                            style: TextStyle(fontSize: 16, color: Colors.black87),
+                          ),
+                        ],
+                      )
+                    : Container(),
           ],
         ),
       ),
