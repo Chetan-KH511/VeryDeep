@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 import 'package:video_player/video_player.dart';
+import 'upload_service.dart'; // Import the upload service
 
 void main() {
   runApp(DeepfakeDetectionApp());
@@ -46,7 +45,7 @@ class _MyHomePageState extends State<MyHomePage> {
         _selectedVideo = File(result.files.single.path!);
         _videoController = VideoPlayerController.file(_selectedVideo!)
           ..initialize().then((_) {
-            setState(() {});  // Update the UI to show the video thumbnail.
+            setState(() {});  // Update the UI to show the video player.
           });
       });
     }
@@ -61,29 +60,11 @@ class _MyHomePageState extends State<MyHomePage> {
       _confidence = 0.0;
     });
 
-    var request = http.MultipartRequest(
-      'POST',
-      Uri.parse('http://10.0.2.2:3000/detect'),
-    );
-    request.files.add(await http.MultipartFile.fromPath('video', _selectedVideo!.path));
-
-    var response = await request.send();
-    if (response.statusCode == 200) {
-      var responseData = await http.Response.fromStream(response);
-      var jsonData = json.decode(responseData.body);
-      
-      setState(() {
-        _output = jsonData['output'];
-        _confidence = jsonData['confidence'];
-      });
-    } else {
-      setState(() {
-        _output = 'Error';
-        _confidence = 0.0;
-      });
-    }
+    final result = await uploadVideo(_selectedVideo!);
 
     setState(() {
+      _output = result['output'];
+      _confidence = result['confidence'];
       _isLoading = false;
     });
   }
@@ -110,9 +91,33 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             SizedBox(height: 20),
             _selectedVideo != null && _videoController!.value.isInitialized
-                ? AspectRatio(
-                    aspectRatio: _videoController!.value.aspectRatio,
-                    child: VideoPlayer(_videoController!),
+                ? Column(
+                    children: [
+                      AspectRatio(
+                        aspectRatio: _videoController!.value.aspectRatio,
+                        child: VideoPlayer(_videoController!),
+                      ),
+                      VideoProgressIndicator(_videoController!, allowScrubbing: true),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          IconButton(
+                            icon: Icon(
+                              _videoController!.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                if (_videoController!.value.isPlaying) {
+                                  _videoController!.pause();
+                                } else {
+                                  _videoController!.play();
+                                }
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
                   )
                 : Text('No video selected'),
             SizedBox(height: 20),
