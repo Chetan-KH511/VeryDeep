@@ -1,7 +1,7 @@
-In progress:
--Dockerize the application or Host it on Render
+#In Progress
+*Dockerize the application or Host it on Render
 
-Completed:
--Building model
--Creating server via flask
--Building application & integration with flask
+#Completed
+*Built the model
+*Created server via Flask
+*Built application and integrated it with Flask
