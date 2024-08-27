@@ -1,6 +1,6 @@
 ### In Progress
 * Dockerize the application or Host it on Render
 ### Completed
-* Built the model
-- Created server via Flask
-+ Built application and integrated it with Flask
+* Build, train and compile the model
+- Create server via Flask, integrate with model
++ Build application and integrated it with Flask
